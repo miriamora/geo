@@ -7,7 +7,10 @@ pipeline{
     stages{
         stage("SonarQube analysis"){
             steps{
-                sh 'mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=miriamora_geolocation2'
+                withSonarQubeEnv('sonarQube'){
+                    sh 'mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=miriamora_geolocation2'
+                }
+                
             }
         }
         stage("maven"){
