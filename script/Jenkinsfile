@@ -18,7 +18,7 @@ pipeline{
                 sh 'mvn clean validate compile install test package'
             }
         }
-        stage("upload artifact"){
+       /* stage("upload artifact"){
             steps{
                 sh '''
         curl -u admin:AP5Wqb4z8e2FpTCsrqdrpHBVngW \
@@ -26,6 +26,30 @@ pipeline{
              "http://52.23.169.217:8081/artifactory/geolocation/geo/bio_$BUILD_ID.jar"
     '''
             }
+        } */
+        stage("docker login"){
+            steps{
+                sh 'aws ecr get-login-password --region us-east-1 | \
+                docker login --username AWS \
+                --password-stdin 826433291202.dkr.ecr.us-east-1.amazonaws.com'
+            }
         }
+        stage("docker build"){
+            steps{
+                sh 'docker build -t utc-app-dev .'
+            }
+        }
+        stage("tag image"){
+            steps{
+                sh "docker tag utc-app-dev:latest \
+                826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:latest"
+            }
+        }
+        stage("push to ECR"){
+            steps{
+                sh "docker push 826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:latest"
+            }
+        }
+        
     }
 }
