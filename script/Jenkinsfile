@@ -1,58 +1,58 @@
-pipeline{
+pipeline {
     agent any
-    tools{
+    tools {
         maven 'M2_HOME'
     }
 
-    stages{
-        stage("SonarQube analysis"){
-            steps{
-                withSonarQubeEnv('sonarQube'){
+    stages {
+        stage("SonarQube analysis") {
+            steps {
+                withSonarQubeEnv('sonarQube') {
                     sh 'mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=miriamora_geolocation2'
                 }
-                
             }
         }
-        stage("maven"){
-            steps{
+        stage("maven") {
+            steps {
                 sh 'mvn clean validate compile install test package'
             }
         }
-       /* stage("upload artifact"){
-            steps{
+        /*
+        stage("upload artifact") {
+            steps {
                 sh '''
-        curl -u admin:AP5Wqb4z8e2FpTCsrqdrpHBVngW \
-             -T target/bioM*.jar \
-             "http://52.23.169.217:8081/artifactory/geolocation/geo/bio_$BUILD_ID.jar"
-    '''
+                    curl -u admin:AP5Wqb4z8e2FpTCsrqdrpHBVngW \
+                         -T target/bioM*.jar \
+                         "http://52.23.169.217:8081/artifactory/geolocation/geo/bio_$BUILD_ID.jar"
+                '''
             }
-        } */
-        stage("docker login"){
-            steps{
+        }
+        */
+        stage("docker login") {
+            steps {
                 sh 'aws ecr get-login-password --region us-east-1 | \
                 docker login --username AWS \
                 --password-stdin 826433291202.dkr.ecr.us-east-1.amazonaws.com'
             }
         }
-        stage("docker build"){
-            steps{
-                sh 'docker build -t utc-app-dev:v.${BUILD_ID} .'
+        stage("docker build") {
+            steps {
+                sh "docker build -t utc-app-dev:v.${BUILD_ID} ."
             }
         }
-        stage("tag image"){
-            steps{
-                sh 'docker tag utc-app-dev:v.${BUILD_ID} \
-                826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:latest'
-                sh 'docker tag utc-app-dev:v.${BUILD_ID} \
-                826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:v.${BUILD_ID}'
+        stage("tag image") {
+            steps {
+                sh "docker tag utc-app-dev:v.${BUILD_ID} \
+                826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:latest"
+                sh "docker tag utc-app-dev:v.${BUILD_ID} \
+                826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:v.${BUILD_ID}"
             }
         }
-        stage("push to ECR"){
-            steps{
+        stage("push to ECR") {
+            steps {
                 sh "docker push 826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:latest"
-                sh "docker push 826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:v.{BUILD_ID}"
+                sh "docker push 826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:v.${BUILD_ID}"
             }
         }
-        
     }
 }
