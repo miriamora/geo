@@ -17,7 +17,6 @@ pipeline {
                 sh 'mvn clean validate compile install test package'
             }
         }
-        /*
         stage("upload artifact") {
             steps {
                 sh '''
@@ -27,7 +26,6 @@ pipeline {
                 '''
             }
         }
-        */
         stage("docker login") {
             steps {
                 sh 'aws ecr get-login-password --region us-east-1 | \
