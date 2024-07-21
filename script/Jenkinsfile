@@ -41,15 +41,15 @@ pipeline{
         }
         stage("tag image"){
             steps{
-                sh "docker tag utc-app-dev:latest \
-                826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:latest"
+                sh 'docker tag utc-app-dev:v.${BUILD_ID} \
+                826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:latest'
                 sh 'docker tag utc-app-dev:latest \
                 826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:v.${BUILD_ID}'
             }
         }
         stage("push to ECR"){
             steps{
-                sh "docker push 826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:latest"
+                sh 'docker push 826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:latest'
                 sh 'docker push 826433291202.dkr.ecr.us-east-1.amazonaws.com/utc-app-dev:v.{BUILD_ID}'
             }
         }
